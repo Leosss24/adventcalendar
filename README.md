@@ -1,4 +1,4 @@
-# Diciembre Nuestro
+# Calendario de Adviento
 
 Calendario de adviento privado y personalizado para varias personas, con una experiencia visual distinta para cada calendario.
 
@@ -21,3 +21,4 @@ npm start
 ```
 
 Las migraciones se guardan en `drizzle/`. Los datos locales de Wrangler y las variables de entorno están excluidos de Git.
+
