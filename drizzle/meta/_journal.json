@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1790073971984,
+      "tag": "0000_old_stepford_cuckoos",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1790076064250,
+      "tag": "0001_unusual_cassandra_nova",
+      "breakpoints": true
+    }
+  ]
+}

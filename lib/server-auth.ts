@@ -1,0 +1,9 @@
+import { cookies } from "next/headers";import { env } from "cloudflare:workers";
+const initialUsers=[["nhoa","Nhoa","616e09fee2cb8dbc3db2e68d149ecb184b4ce41eb07cdb6f3c53beb5059679eb","user"],["mery","Mery","bf37f665dc180bc9d1a34437ea7497cc24ae3491a8791299d42d530ee5643e82","user"],["manu","Manu","6f77c5fdd774f70b023d9de8d2618d3b9f3a26f0216aea1931247cbf638b37f8","user"],["leo","Leo","bcb605c8d1d5c577ad976b2cd84e22da7ae2880435a5f876facd6f264e158786","admin"]] as const;
+export async function sha256(v:string){const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v));return Array.from(new Uint8Array(d),b=>b.toString(16).padStart(2,"0")).join("")}
+export async function passwordHash(u:string,p:string){const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(p),"PBKDF2",false,["deriveBits"]);const bits=await crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:new TextEncoder().encode(`adviento-v2:${u.toLowerCase()}`),iterations:310000},key,256);return Array.from(new Uint8Array(bits),b=>b.toString(16).padStart(2,"0")).join("")}
+export async function ensureInitialUsers(){const n=new Date().toISOString();await env.DB.batch(initialUsers.map(([u,d,h,r])=>env.DB.prepare("INSERT OR IGNORE INTO users (username,display_name,password_hash,role,active,created_at) VALUES (?,?,?,?,1,?)").bind(u,d,h,r,n)))}
+export async function currentUser(){const t=(await cookies()).get("advent_session")?.value;if(!t)return null;return env.DB.prepare("SELECT u.id,u.username,u.display_name displayName,u.role FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>? AND u.active=1").bind(await sha256(t),new Date().toISOString()).first<{id:number;username:string;displayName:string;role:"admin"|"user"}>()}
+export async function requireUser(role?:"admin"){const u=await currentUser();if(!u||(role&&u.role!==role))throw new Error("UNAUTHORIZED");return u}
+
+
